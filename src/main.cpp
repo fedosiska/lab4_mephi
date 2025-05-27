@@ -9,9 +9,9 @@ int main() {
     int keys[] = { 10, 5, 15, 2, 7, 13, 20 };
     for (int k : keys) bst.Insert(k);
 
-    std::cout << "=== левый обход ===\n";
-    bst.PrintLeftOrder();
-
+    std::cout << "KLP:\n";  bst.Print(BinarySearchTree<int>::Traversal::KLP);
+    std::cout << "LPK:\n";  bst.Print(BinarySearchTree<int>::Traversal::LPK);
+    
     auto sq = bst.Map([](int x){ return x * x; });
     for (int v: sq) std::cout<< v <<' ';
     cout<<'\n';
