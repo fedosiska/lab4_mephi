@@ -228,31 +228,7 @@ class BinarySearchTree{
             dfs(root);
             return acc;
         }
-        enum class Order {Pre, In };
-        std::string ToString(Order ord = Order::Pre) const {
 
-            std::ostringstream out;
-            std::function<void(Node*)> dfs = [&](Node* n){
-                if (!n) { out << "_"; return; }
-
-                out <<"(";
-
-                if(ord == Order::Pre){
-                    out << n->key << ' '; // K
-                    dfs(n->left);  out << ' ';
-                    dfs(n->right);
-                }
-                else{
-                    dfs(n->left); out<< ' ';
-                    out<< n->key<< ' ';
-                    dfs(n->right);
-                }
-
-                out << ')';
-            };
-            dfs(root);
-            return out.str();
-        }
         BinarySearchTree ExtractSubtree(const T& key) {
             BinarySearchTree out;
             Node* start = find(root, key);
@@ -271,24 +247,62 @@ class BinarySearchTree{
             return out;
         }
 
-        void PrintLeftOrder()  const { 
+        enum class Traversal {
+            KLP,
+            KPL,
+            LKP, 
+            LPK, 
+            PKL,  
+            PLK    
+        };
+
+        void Print(Traversal t = Traversal::LKP) const {
             std::function<void(Node*)> dfs = [&](Node* n){
                 if (!n) return;
-                dfs(n->left);
-                std::cout << n->key << '\n';
-                dfs(n->right);
+
+                auto visitK = [&]{ std::cout << n->key << '\n'; };
+                auto visitL = [&]{ dfs(n->left);  };
+                auto visitP = [&]{ dfs(n->right); };
+
+                switch (t) {
+                    case Traversal::KLP: visitK(); visitL(); visitP(); break;
+                    case Traversal::KPL: visitK(); visitP(); visitL(); break;
+                    case Traversal::LKP: visitL(); visitK(); visitP(); break;
+                    case Traversal::LPK: visitL(); visitP(); visitK(); break;
+                    case Traversal::PKL: visitP(); visitK(); visitL(); break;
+                    case Traversal::PLK: visitP(); visitL(); visitK(); break;
+                }
             };
             dfs(root);
         }
 
-        void PrintRightOrder() const {
-            std::function<void(Node*)> dfs = [&](Node* n){
-                if (!n) return;
-                dfs(n->right);
-                std::cout << n->key << '\n';
-                dfs(n->left);
-            };
-            dfs(root);
-        }
+        std::string ToString(Traversal t = Traversal::LKP) const{
+            std::ostringstream out;
 
+            std::function<void(Node*)> dfs = [&](Node* n){
+                if (!n) { out << "_"; return; }
+
+                out << '(';
+
+                auto K = [&]{ out << n->key; };
+                auto L = [&]{ dfs(n->left ); };
+                auto P = [&]{ dfs(n->right); };   
+
+                auto sep = [&]{ out << ' '; };
+
+                switch (t){
+                    case Traversal::KLP: K(); sep(); L(); sep(); P(); break;
+                    case Traversal::KPL: K(); sep(); P(); sep(); L(); break;
+                    case Traversal::LKP: L(); sep(); K(); sep(); P(); break;
+                    case Traversal::LPK: L(); sep(); P(); sep(); K(); break;
+                    case Traversal::PKL: P(); sep(); K(); sep(); L(); break;
+                    case Traversal::PLK: P(); sep(); L(); sep(); K(); break;
+                }
+
+                out << ')';
+            };
+
+            dfs(root);
+            return out.str();
+        }
 };
